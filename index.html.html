@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Find the Treasure!</title>
+  <style>
+    :root {
+      --bg-light: #f0f0f0;
+      --bg-dark: #1a1a1a;
+      --wall-light: #999;
+      --wall-dark: #444;
+      --path-light: #fff;
+      --path-dark: #333;
+      --player: #00bfff;
+      --goal: gold;
+    }
+
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--bg-dark);
+      color: white;
+      transition: 0.3s;
+    }
+
+    .controls {
+      margin: 10px;
+    }
+
+    #modeToggle {
+      padding: 5px 10px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    #characterSelect {
+      padding: 5px;
+    }
+
+    #maze {
+      display: grid;
+      grid-template-columns: repeat(10, 30px);
+      gap: 2px;
+      margin: 20px 0;
+    }
+
+    .cell {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      line-height: 30px;
+      font-size: 20px;
+      transition: 0.2s;
+    }
+
+    .wall {
+      background-color: var(--wall-dark);
+    }
+
+    .path {
+      background-color: var(--path-dark);
+    }
+
+    .player {
+      background-color: var(--player);
+    }
+
+    .goal {
+      background-color: var(--goal);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 60px 60px 60px;
+      grid-template-rows: 60px 60px;
+      gap: 10px;
+    }
+
+    .btn {
+      background-color: #555;
+      color: white;
+      font-size: 24px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+  <h1>Find the Treasure! 🗝️</h1>
+
+  <div class="controls">
+    <button id="modeToggle">🌙 Dark Mode</button>
+    <select id="characterSelect">
+      <option value="😺">Cat</option>
+      <option value="👾">Alien</option>
+      <option value="🧠">Brain</option>
+      <option value="👟">Sneaker</option>
+    </select>
+  </div>
+
+  <div id="maze"></div>
+
+  <div class="buttons">
+    <button class="btn" onclick="move('up')">⬆️</button>
+    <button class="btn" onclick="move('left')">⬅️</button>
+    <button class="btn" onclick="move('down')">⬇️</button>
+    <button class="btn" onclick="move('right')">➡️</button>
+  </div>
+
+  <script>
+    const mazeMap = [
+      "WWWWWWWWWW",
+      "W     W  W",
+      "W WWW W WW",
+      "W W      W",
+      "W W WWWW W",
+      "W W W  W W",
+      "W W W WW W",
+      "W   W    W",
+      "WWW WWWW W",
+      "WWWWWWWWGW"
+    ];
+
+    let maze = document.getElementById("maze");
+    let playerPos = { x: 1, y: 1 };
+    let charIcon = "😺";
+
+    function drawMaze() {
+      maze.innerHTML = "";
+      for (let y = 0; y < mazeMap.length; y++) {
+        for (let x = 0; x < mazeMap[y].length; x++) {
+          let cell = document.createElement("div");
+          cell.classList.add("cell");
+
+          if (x === playerPos.x && y === playerPos.y) {
+            cell.classList.add("player");
+            cell.textContent = charIcon;
+          } else if (mazeMap[y][x] === "W") {
+            cell.classList.add("wall");
+          } else if (mazeMap[y][x] === "G") {
+            cell.classList.add("goal");
+            cell.textContent = "🎁";
+          } else {
+            cell.classList.add("path");
+          }
+
+          maze.appendChild(cell);
+        }
+      }
+    }
+
+    function move(direction) {
+      let newX = playerPos.x;
+      let newY = playerPos.y;
+
+      if (direction === "up") newY--;
+      if (direction === "down") newY++;
+      if (direction === "left") newX--;
+      if (direction === "right") newX++;
+
+      if (
+        newX >= 0 && newX < mazeMap[0].length &&
+        newY >= 0 && newY < mazeMap.length &&
+        mazeMap[newY][newX] !== "W"
+      ) {
+        playerPos = { x: newX, y: newY };
+        drawMaze();
+
+        if (mazeMap[newY][newX] === "G") {
+          setTimeout(() => {
+            window.location.href = "treasure.html";
+          }, 300);
+        }
+      }
+    }
+
+    document.getElementById("modeToggle").addEventListener("click", () => {
+      const root = document.documentElement;
+      const isDark = getComputedStyle(root).getPropertyValue('--bg-dark') === '#1a1a1a';
+
+      if (document.body.style.backgroundColor === 'rgb(26, 26, 26)') {
+        // Switch to light
+        root.style.setProperty('--bg-dark', '#f0f0f0');
+        root.style.setProperty('--wall-dark', '#ccc');
+        root.style.setProperty('--path-dark', '#fff');
+        document.body.style.backgroundColor = '#f0f0f0';
+        document.body.style.color = 'black';
+      } else {
+        // Switch to dark
+        root.style.setProperty('--bg-dark', '#1a1a1a');
+        root.style.setProperty('--wall-dark', '#444');
+        root.style.setProperty('--path-dark', '#333');
+        document.body.style.backgroundColor = '#1a1a1a';
+        document.body.style.color = 'white';
+      }
+      drawMaze();
+    });
+
+    document.getElementById("characterSelect").addEventListener("change", (e) => {
+      charIcon = e.target.value;
+      drawMaze();
+    });
+
+    drawMaze();
+  </script>
+</body>
+</html>
